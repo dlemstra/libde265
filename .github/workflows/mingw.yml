@@ -2,7 +2,7 @@ name: mingw
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, fix-mingw ]
   pull_request:
     branches: [ master ]
 
@@ -14,12 +14,12 @@ jobs:
           - { TARGET_HOST: "i686-w64-mingw32", WINE: "wine" }
           - { TARGET_HOST: "x86_64-w64-mingw32", WINE: "wine64" }
     env: ${{ matrix.env }}
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Checkout sample streams
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         repository: strukturag/libde265-data
         path: libde265-data

@@ -43,22 +43,27 @@ fi
 
 if [ "$WINE" = "wine" ]; then
     sudo dpkg --add-architecture i386
-    UPDATE_APT=1
+    # https://github.com/actions/virtual-environments/issues/4589
+    sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list
+    sudo apt-get update -qq
+    sudo apt-get install -yqq --allow-downgrades libgd3/focal libpcre2-8-0/focal libpcre2-16-0/focal libpcre2-32-0/focal libpcre2-posix2/focal
+    sudo apt-get purge -yqq libmono* moby* mono* php* libgdiplus libpcre2-posix3 libzip4
 
     INSTALL_PACKAGES="$INSTALL_PACKAGES \
-        gcc-mingw-w64-i686 \
-        g++-mingw-w64-i686 \
         binutils-mingw-w64-i686 \
+        g++-mingw-w64-i686 \
+        gcc-mingw-w64-i686 \
         mingw-w64-i686-dev \
+        wine-stable \
         wine32 \
         "
 elif [ "$WINE" = "wine64" ]; then
     INSTALL_PACKAGES="$INSTALL_PACKAGES \
-        gcc-mingw-w64-x86-64 \
-        g++-mingw-w64-x86-64 \
         binutils-mingw-w64-x86-64 \
+        g++-mingw-w64-x86-64 \
+        gcc-mingw-w64-x86-64 \
         mingw-w64-x86-64-dev \
-        wine64 \
+        wine-stable \
         "
 fi
 
@@ -96,9 +101,11 @@ if [ ! -z "$INSTALL_PACKAGES" ]; then
 fi
 
 if [ "$WINE" = "wine" ]; then
-    sudo update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
-    sudo update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+    if [ -x "/usr/bin/i686-w64-mingw32-g++-posix" ]; then
+        sudo update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+    fi
 elif [ "$WINE" = "wine64" ]; then
-    sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
-    sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+    if [ -x "/usr/bin/x86_64-w64-mingw32-g++-posix" ]; then
+        sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+    fi
 fi
